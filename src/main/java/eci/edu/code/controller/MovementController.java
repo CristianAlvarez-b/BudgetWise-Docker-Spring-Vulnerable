@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,6 +113,47 @@ public class MovementController {
                 .map(User::getId)
                 .findFirst()
                 .orElse(null);
+    }
+    @PostMapping("/transfer")
+    public ResponseEntity<String> transferMoney(
+            @RequestParam String targetUsername,
+            @RequestParam Double amount,
+            @RequestHeader("Authorization") String token) {
+        if (!validateToken(token)) {
+            return ResponseEntity.status(401).body("Invalid token");
+        }
+
+        Long sourceUserId = getUserIdFromToken(token);
+
+        return userService.getUserById(sourceUserId).flatMap(sourceUser ->
+                userService.getUserByUsername(targetUsername).map(targetUser -> {
+                    if (sourceUser.getId().equals(targetUser.getId())) {
+                        return ResponseEntity.status(400).body("Cannot transfer to the same account");
+                    }
+
+                    // Crear movimiento outcome para el usuario fuente
+                    Movement outcome = new Movement();
+                    outcome.setName("Transfer to user " + targetUser.getUsername());
+                    outcome.setValue(amount);
+                    outcome.setType("transferOut");
+                    outcome.setUser(sourceUser);
+                    outcome.setDate(LocalDateTime.now());
+
+                    movementService.createMovement(outcome);
+
+                    // Crear movimiento income para el usuario destino
+                    Movement income = new Movement();
+                    income.setName("Transfer from user " + sourceUser.getUsername());
+                    income.setValue(amount);
+                    income.setType("transferIn");
+                    income.setUser(targetUser);
+                    income.setDate(LocalDateTime.now());
+
+                    movementService.createMovement(income);
+
+                    return ResponseEntity.ok("Transfer successful");
+                })
+        ).orElse(ResponseEntity.status(404).body("Target user not found"));
     }
 
 }

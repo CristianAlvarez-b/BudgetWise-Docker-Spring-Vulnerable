@@ -8,7 +8,7 @@ class FinancialModel {
         this.balance = 0;
         this.token = localStorage.getItem('token'); // Suponiendo que el token está guardado en localStorage
         this.APIURL = "/api/";
-        this.loadMovements();
+        //this.loadMovements();
         this.loadQuestions();
     }
 
@@ -244,15 +244,56 @@ class FinancialModel {
             console.error('Error al eliminar el movimiento:', error);
         }
     }
-
+    async transferMoney(userName, value) {
+        try {
+            const token = this.token;
+            const formData = new FormData();
+            formData.append('targetUsername', userName);
+            formData.append('amount', value);
+    
+            // Realiza la solicitud POST al endpoint de transferencias
+            const response = await fetch(`${this.APIURL}movements/transfer`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token,
+                    // 'Content-Type' no se necesita porque FormData lo maneja automáticamente
+                },
+                body: formData, // Enviar los datos como FormData
+            });
+    
+            // Si la respuesta no es exitosa, lanza un error
+            if (!response.ok) {
+                const responseText = await response.text();
+                throw new Error(`Error en la transferencia: ${responseText}`);
+            }
+    
+            // Si la transferencia es exitosa, actualiza los movimientos y el balance
+            await this.loadMovements();
+            Swal.fire({
+                icon: 'success',
+                title: 'Transferencia realizada con éxito!',
+                showConfirmButton: false,
+                timer: 2500,
+            });
+    
+        } catch (error) {
+            console.error('Error al realizar la transferencia:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al realizar la transferencia',
+                text: error.message,
+            });
+        }
+    }
+    
     updateBalance() {
         let balance = 0; // Inicializa el balance en 0
     
         // Itera sobre los movimientos
         for (const movement of this.movements) {
-            if (movement.type === 'income' || movement.type === 'pocketOutcome') {
+            if (movement.type === 'income' || movement.type === 'pocketOutcome' || movement.type === 'transferIn') {
                 balance += movement.value; // Suma al balance si es ingreso
-            } else if (movement.type === 'outcome' || movement.type === 'pocketIncome') {
+            } else if (movement.type === 'outcome' || movement.type === 'pocketIncome' || movement.type === 'transferOut') {
                 balance -= movement.value; // Resta al balance si es gasto
             }
         }

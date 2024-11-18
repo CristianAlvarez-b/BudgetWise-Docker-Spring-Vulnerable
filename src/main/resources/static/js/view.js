@@ -41,6 +41,20 @@ class FinancialView {
                     deleteIcon = '/resources/Imagenes/eliminar.png';
                     minous = " ";
                     break;
+                case 'transferIn':
+                     iconSrc = '/resources/Imagenes/arriba.png'; // Icono para ingresos
+                     iconAlt = 'Ingreso en Bolsillo';
+                     editIcon = '/resources/Imagenes/editPocket.png';
+                     deleteIcon = '/resources/Imagenes/deletePocket.png';
+                     minous = "  ";
+                     break;
+                case 'transferOut':
+                    iconSrc = '/resources/Imagenes/abajo.png'; // Icono para egresos
+                    iconAlt = 'Ingreso en Bolsillo';
+                    editIcon = '/resources/Imagenes/editPocket.png';
+                    deleteIcon = '/resources/Imagenes/deletePocket.png';
+                    minous = " ";
+                     break;
                 case 'pocketIncome':
                     iconSrc = '/resources/Imagenes/pocketIncome.png'; // Icono para ingresos en bolsillo
                     iconAlt = 'Ingreso en Bolsillo';
@@ -104,7 +118,7 @@ class FinancialView {
                 if (iconAlt === 'Ingreso en Bolsillo' || iconAlt === 'Egreso en Bolsillo') {
                     Swal.fire({
                         title: "Can't edit movement",
-                        text: "You can't edit a movement from a pocket",
+                        text: "You can't edit this movement",
                         icon: 'error',
                         confirmButtonColor: '#eba646',
                         confirmButtonText: 'Ok'

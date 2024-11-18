@@ -29,7 +29,9 @@ class FinancialController {
         document.querySelector('.btn-add-expense').addEventListener('click', () => {
             this.showForm('expense');
         });
-
+        document.querySelector('.btn-send-money').addEventListener('click', ()=>{
+            this.showForm('sendMoney');
+        });
         closePopup.addEventListener('click', () => {
             this.hideForm();
         });
@@ -75,6 +77,32 @@ class FinancialController {
                 this.hideForm();
             }
         });
+        document.getElementById('send-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Evita el comportamiento por defecto del formulario
+        
+            const userName = document.getElementById('usersname').value;
+            const value = parseFloat(document.getElementById('transfer-value').value);
+            if (value > this.model.balance) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Insufficient funds',
+                    text: 'The amount you want to transfer is greater than the available balance.',
+                });
+                return; // Detener la ejecución si el saldo es insuficiente
+            }
+            if (userName && !isNaN(value) && value > 0) {
+                // Llama al método transferMoney para realizar la transferencia
+                await this.model.transferMoney(userName, value);
+                await this.updateView();
+                this.hideForm();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Por favor, complete todos los campos correctamente.',
+                });
+            }
+        });
 
         this.view.setEditHandler(this.editMovement.bind(this));
         this.view.setDeleteHandler(this.deleteMovement.bind(this));
@@ -83,8 +111,11 @@ class FinancialController {
     initLocalStorageListener() {
         window.addEventListener('storage', (event) => {
             if (event.key === 'balance') {
-                this.model.balance = parseFloat(event.newValue) || 0;
-                this.updateView();
+                const newBalance = parseFloat(event.newValue) || 0;
+                if (this.model.balance !== newBalance) { // Evitar llamadas innecesarias
+                    this.model.balance = newBalance;
+                    this.updateView();
+                }
             }
         });
     }
@@ -154,23 +185,28 @@ class FinancialController {
         const popup = document.getElementById('popup-form');
         document.getElementById('income-form').style.display = type === 'income' ? 'flex' : 'none';
         document.getElementById('expense-form').style.display = type === 'expense' ? 'flex' : 'none';
+        document.getElementById('send-form').style.display = type === 'sendMoney' ? 'flex' : 'none'; // Mostrar el formulario de transferencias
         popup.style.display = 'block';
-
+    
         if (movement) {
-            document.getElementById(`${type}-name`).value = movement.name;
-            document.getElementById(`${type}-value`).value = movement.value;
-            document.getElementById(`${type}-date`).value = movement.date.split(' ')[0];
+            if (type === 'income' || type === 'expense') {
+                document.getElementById(`${type}-name`).value = movement.name;
+                document.getElementById(`${type}-value`).value = movement.value;
+                document.getElementById(`${type}-date`).value = movement.date.split(' ')[0];
+            }
             this.editingIndex = movement.index;
         } else {
             this.editingIndex = null;
         }
     }
-
+    
     hideForm() {
         document.getElementById('popup-form').style.display = 'none';
         document.getElementById('income-form').reset();
         document.getElementById('expense-form').reset();
+        document.getElementById('send-form').reset(); // Resetear el formulario de transferencias
     }
+    
 
     // controller.js
     async updateMovement(type, name, value, date) {
@@ -208,25 +244,25 @@ class FinancialController {
     }
 
     async getMovements() {
-        await this.model.loadMovements(); // Cargar movimientos desde la API
+         // Cargar movimientos desde la API
+        await this.model.loadMovements();
         let runningBalance = 0; // Comienza con el balance inicial
         const movements = [];
-        console.log(this.model.incomes);
-        console.log(this.model.expenses);
+  
         // Combinar ingresos y egresos en un solo array
         const allMovements = this.model.getMovements();
-        console.log(allMovements);
+
         // Ordenar por fecha y hora en orden descendente
         allMovements.sort((a, b) => new Date(a.date) - new Date(b.date));
         
         // Procesar todos los movimientos ordenados
        
         allMovements.forEach(movement => {
-            if (movement.type === 'income' || movement.type === 'pocketOutcome') {
+            if (movement.type === 'income' || movement.type === 'pocketOutcome' || movement.type === 'transferIn') {
 ;
                 runningBalance += movement.value;
         
-            } else if (movement.type === 'outcome' || movement.type === 'pocketIncome') {
+            } else if (movement.type === 'outcome' || movement.type === 'pocketIncome' || movement.type === 'transferOut') {
     
                 runningBalance -= movement.value;
           

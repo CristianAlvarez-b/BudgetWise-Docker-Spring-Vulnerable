@@ -192,7 +192,21 @@ body {
 .btn-add-expense:hover {
     background-color: #fdd7a0;
 }
+.btn-send-money {
+    background-color: #b0d0c1;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 150px;
+}
 
+.btn-send-money:hover {
+    background-color: #b0d0c1;
+}
 /* Tabla de movimientos */
 .movements-section {
     margin-top: 30px;
@@ -317,7 +331,22 @@ form button[type="submit_income"]:hover {
     background-color: #3ba071;
     
 }
+form button[type="submit_money"] {
+    padding: 12px;
+    background-color: #4cb182;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    align-self: center;
+    width: 45%;
+}
 
+form button[type="submit_money"]:hover {
+    background-color: #3ba071;
+}
 /* Estilos para el popup */
 .popup-form {
     display: none; /* Se mostrará solo cuando se active */

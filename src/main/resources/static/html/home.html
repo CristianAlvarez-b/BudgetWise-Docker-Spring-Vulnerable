@@ -32,6 +32,7 @@
             <div class="buttons">
                 <button class="btn-add-income">Add <br> Incomes</button>
                 <button class="btn-add-expense">Add <br> Outcomes</button>
+                <button class="btn-send-money">Send <br> Money </button>
             </div>
         </div>
 
@@ -87,6 +88,17 @@
                 <input type="date" id="expense-date" required>
                 <p> <br> </p>
                 <button type="submit_outcome">Done</button>
+            </form>
+            <form id="send-form" style="display: none;">
+                <h1 style="text-align: center;">Transfer Money</h1>
+                <p> <br> <br> </p>
+                <label for="send-user">User's Name:</label>
+                <input type="text" id="usersname" required>
+                <p> <br> </p>
+                <label for="transfer-value">Value:</label>
+                <input type="number" id="transfer-value" required>
+                <p> <br> </p>
+                <button type="submit_money" id="submit-transfer">Done</button>
             </form>
         </div>
     </div>

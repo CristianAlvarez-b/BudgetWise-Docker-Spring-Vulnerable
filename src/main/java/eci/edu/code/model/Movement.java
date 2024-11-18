@@ -12,7 +12,7 @@ public class Movement {
         private String name;
         private double value;
         private LocalDateTime date;
-        private String type; // "income" o "expense"
+        private String type;
 
         @ManyToOne
         @JoinColumn(name = "user_id")

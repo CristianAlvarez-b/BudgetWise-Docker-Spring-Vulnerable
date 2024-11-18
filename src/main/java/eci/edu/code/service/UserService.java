@@ -60,4 +60,7 @@ public class UserService {
         // Retorna el nombre de usuario si el usuario fue encontrado, de lo contrario, retorna null
         return user.map(User::getUsername).orElse(null);
     }
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }
